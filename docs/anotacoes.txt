@@ -1,0 +1,8 @@
+Monitorar as variações nos processos de deriva com base nas condições meteorologicas e oceanográfica.
+1 posição por hora.
+Sistema de resgate: bluetooth beacon (talvez).
+11-12 km (melhor dos mundos).
+Pode haver captação de sinais em algumas ilhas.
+Duração: pelo menos 1 mês (ideal 1 ano).
+Custo: 500-600 por dispositivo (não se limitar a isso).
+Desenvolver tanto os transmissores quanto as estações.
