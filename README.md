@@ -5,10 +5,10 @@ Este projeto visa criar um sistema de monitoramento de trajetória de carcaças 
 ---
 
 ## 👥 Integrantes da Equipe
-- Nome do Aluno 1 (Função)  
-- Nome do Aluno 2 (Função)  
-- Nome do Aluno 3 (Função)  
-- Nome do Aluno 4 (Função)  
+- Aruã Viggiano Souza 
+- Gabriel Hessmann Ramos 
+- Leonardo Coli de Aguiar 
+- Matheus araujo langer
 
 ---
 
