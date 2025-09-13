@@ -1,0 +1,6 @@
+dash==3.2.0
+plotly==6.3.0
+pandas==2.2.2
+psycopg2-binary==2.9.9
+waitress==3.0.2
+sqlalchemy==2.0.31

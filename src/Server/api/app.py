@@ -3,11 +3,13 @@ from flask import Flask, request, jsonify
 import psycopg2
 from psycopg2 import sql
 import os
+import time
+from datetime import datetime
 
 app = Flask(__name__)
 
-DB_HOST = 'localhost'
-DB_NAME = os.getenv('POSTGRES_DB', 'derivadores')
+DB_HOST = os.getenv('POSTGRES_HOST', 'localhost')
+DB_NAME = os.getenv('POSTGRES_DB', 'postgres')
 DB_USER = os.getenv('POSTGRES_USER', 'root')
 DB_PASSWORD = os.getenv('POSTGRES_PASSWORD', '1234')
 
@@ -20,26 +22,7 @@ def get_db_connection():
     )
     return conn
 
-def init_db():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS locations (
-            id SERIAL PRIMARY KEY,
-            sender_id VARCHAR(255) NOT NULL,
-            timestamp TIMESTAMP NOT NULL,
-            latitude FLOAT NOT NULL,
-            longitude FLOAT NOT NULL,
-            gps_module_id VARCHAR(255) NOT NULL
-        )
-    ''')
-    conn.commit()
-    cur.close()
-    conn.close()
-
-init_db()
-
-@app.route('/api/location', methods=['POST'])
+@app.route('/location', methods=['POST'])
 def receive_location():
     data = request.json
     if not data:
@@ -58,16 +41,20 @@ def receive_location():
         conn = get_db_connection()
         cur = conn.cursor()
         insert_query = sql.SQL('''
-            INSERT INTO locations (sender_id, timestamp, latitude, longitude, gps_module_id)
+            INSERT INTO deriva_points (sender_id, timestamp, latitude, longitude, gps_module_id)
             VALUES (%s, %s, %s, %s, %s)
         ''')
-        cur.execute(insert_query, (sender_id, timestamp, latitude, longitude, gps_module_id))
+        cur.execute(insert_query, (sender_id, datetime.fromtimestamp(timestamp), latitude, longitude, gps_module_id))
         conn.commit()
         cur.close()
         conn.close()
-        return jsonify({'message': 'Data inserted successfully'}), 201
+        return jsonify({'message': 'Data inserted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/', methods=['GET'])
+def hello():
+    return 'Olá, mundo!'
 
 if __name__ == '__main__':
     app.run(debug=True)
