@@ -4,3 +4,4 @@ pandas==2.2.2
 psycopg2-binary==2.9.9
 waitress==3.0.2
 sqlalchemy==2.0.31
+python-dotenv==1.1.1

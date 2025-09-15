@@ -14,6 +14,10 @@ import os
 import urllib
 import io
 from base64 import b64encode
+import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 dash.register_page(__name__, path='/')
 
@@ -26,6 +30,10 @@ DB_PASSWORD = os.getenv('POSTGRES_PASSWORD', '1234')
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
 engine = create_engine(DATABASE_URL)
+
+def read_json(data):
+    d = json.loads(data)
+    return pd.DataFrame(d['data'],d['index'],d['columns'])
 
 def get_data():
     return pd.read_sql('select * from deriva_points',engine,index_col='id')
@@ -63,18 +71,15 @@ def inicial_figure():
     )
     return fig
 
-@callback(Output('data', 'data'),Output('mapa','figure'), Input('modo_escuro', 'value'), State('data', 'data'),State('mapa','figure'))
-def update_data(value, data, fig):
-    if (data is None) or (not callback_context.triggered):
-        alldf = get_data()
-    else:
-        alldf = pd.read_json(data, orient='split')
+@callback(Output('data', 'data'),Output('mapa','figure'), Input('refresh', 'n_clicks'), State('data', 'data'),State('mapa','figure'))
+def update_data(n_clicks, data, fig):
+    alldf = get_data()
+    print('Obtendo dados')
     fig = go.Figure()
 
     random.seed(0)
     for id in alldf['gps_module_id'].unique():
         df = alldf.loc[alldf['gps_module_id']==id]
-        print(df)
         fig.add_trace(go.Scattermap(
             lon = df['longitude'],
             lat = df['latitude'],
@@ -116,7 +121,7 @@ def create_html(figure):
 
 @callback(Output('baixar_dados','href'),Input('data','data'))
 def create_csv(data):
-    df = pd.read_json(data, orient='split')
+    df = read_json(data)
     csv = df.to_csv(index = False)
     return "data:text/csv;charset=utf-8," + urllib.parse.quote(csv)
 
@@ -134,7 +139,7 @@ def show_info(open,close):
 
 @callback(Output('bargraph','figure'),Input('data','data'))
 def build_graphs(data):
-    df = pd.read_json(data, orient='split')
+    df = read_json(data)
     fig = go.Figure()
     return fig
 
@@ -144,8 +149,8 @@ layout = html.Div([
             style = {'font-family':'helvetica','background-color':'white','border-radius':'5px',
                         'padding':'10px','color':font_color,'margin':'10px','float':'left','font-size':'23px'},id = 'title'),
     html.Div([
-        html.A(html.Button('Baixar Dados',className = 'menuButton'),id = 'baixar_dados',download = 'focos_de_calor.csv'),html.Br(),
-        html.A(html.Button('Baixar Mapa',className = 'menuButton'),id = 'baixar_mapa',download = 'focos_de_calor.html'),html.Br(),
+        html.A(html.Button('Baixar Dados',className = 'menuButton'),id = 'baixar_dados',download = 'derivadores.csv'),html.Br(),
+        html.A(html.Button('Baixar Mapa',className = 'menuButton'),id = 'baixar_mapa',download = 'derivadores.html'),html.Br(),
         html.A(html.Button('Dashboard',className = 'menuButton',id = 'dashButton',n_clicks = 0)),html.Br(),
         html.A(html.Button('Sobre',id = 'sobre',className = 'menuButton',n_clicks = 0))],
         style = {'position': 'fixed', 'top': '0', 'left': '0','margin-top':'75px','margin-left':'10px'}),
@@ -159,10 +164,9 @@ layout = html.Div([
         html.Button('X',id = 'closeInfo',n_clicks = 0,className = 'close'),
         html.Div([
             html.H2('Sobre o projeto'),
-            html.P('Dados de satélite das últimas 24h.'),
-            html.P(['Fonte dos dados: ',html.A('BDQueimadas',href = 'https://queimadas.dgi.inpe.br/queimadas/portal')]),
-            html.P(['Criado por: ',html.A('Aruã Viggiano Souza',href = 'https://www.linkedin.com/in/aru%C3%A3-viggiano-souza/')]),
-            html.P(['Código fonte: ',html.A('Github',href = 'https://github.com/aruasouza/focos-de-calor-dash')])
+            html.P('Trajetórias de derivadores.'),
+            html.P(['Criado por: Aruã Viggiano Souza, Gabriel Hessmann Ramos, Leonardo Coli de Aguiar e Matheus araujo langer']),
+            html.P(['Código fonte: ',html.A('Github',href = 'https://github.com/ECA-UFSC-FLN/2025.2-G2-monitoraDeriva')])
         ],className = 'blocoTexto')],id = 'info'),
     html.Div(id = 'fade2',className = 'fade'),
     html.Div([
@@ -171,6 +175,5 @@ layout = html.Div([
             html.H2('Dashboard'),
             dcc.Graph(id = 'bargraph'),
         ],className = 'blocoDash')],id = 'dashboard'),
-    dcc.Checklist(id = 'modo_escuro',options = ['Modo Escuro'],style = {'position': 'fixed', 'top':'93%','left':'1%','color':'rgb(100,100,100)',
-                                           'background-color':'white','padding':'5px','border-radius':'10px','font-family':'helvetica'})
+    html.Button('Atualizar Dados',id = 'refresh',className = 'menuButton',style = {'position': 'fixed', 'top':'93%','left':'1%'})
 ])
