@@ -3,16 +3,28 @@ image: docker:27-cli
 stages:
   - build
   - portainer
-### BUILD
-build:
+
+### BUILD API
+build_api:
   stage: build
   only:
     - master
     - main
   script:
-    - docker build . -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" --no-cache 
+    - docker build -f api/Dockerfile api/ -t "$CI_REGISTRY_IMAGE:api-$CI_COMMIT_REF_SLUG" --no-cache
     - docker login $CI_REGISTRY -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    - docker push "$CI_REGISTRY_IMAGE:api-$CI_COMMIT_REF_SLUG"
+
+### BUILD DASHBOARD
+build_dashboard:
+  stage: build
+  only:
+    - master
+    - main
+  script:
+    - docker build -f dashboard/Dockerfile dashboard/ -t "$CI_REGISTRY_IMAGE:dashboard-$CI_COMMIT_REF_SLUG" --no-cache
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER  -p $CI_REGISTRY_PASSWORD
+    - docker push "$CI_REGISTRY_IMAGE:dashboard-$CI_COMMIT_REF_SLUG"
 
 #### DEPLOY
 #

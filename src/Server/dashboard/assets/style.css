@@ -1,66 +1,185 @@
-button.menuButton {
-    color:rgb(100,100,100);
-    margin:10px;
-    font-size:15px;
-    font-family:helvetica;
-    padding:7px;
-    float:left;
-    background-color:white;
-    border:0px;
-    border-radius:15px;
+:root {
+  --color-primary: #1877f2;       /* Azul principal para botões e links */
+  --color-primary-hover: #166fe5;  /* Azul mais escuro para hover */
+  --color-text-primary: #1c1e21;    /* Preto suave para textos principais */
+  --color-text-secondary: #606770; /* Cinza para textos secundários */
+  --color-background: #f0f2f5;     /* Cinza claro para o fundo do conteúdo */
+  --color-surface: #ffffff;        /* Branco para superfícies como cards e modais */
+  --color-sidebar-bg: #ffffff;      /* Fundo da sidebar (branco para um look moderno) */
+  --color-border: #dddfe2;         /* Cor para bordas sutis */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --border-radius-small: 6px;
+  --border-radius-large: 12px;
+  --box-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-button.menuButton:hover {
-    background-color: #505050;
-    color: white;
+
+/* --- 2. Reset Básico e Estilos Globais --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-#info {
-    min-width:350px;
-    background-color: white;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
+
+body {
+  height: 100vh;
+  overflow: hidden; /* Evita barras de rolagem no corpo da página */
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
 }
-#dashboard {
-    background-color: white;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 99%;
-    height: 99%;
-    z-index: 1;
+
+/* --- 3. Layout Principal (Sidebar + Conteúdo) --- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px; /* Largura da sidebar */
+  background-color: var(--color-sidebar-bg);
+  padding: 20px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
-button.close {
-    color:rgb(100,100,100);
-    font-size:20px;
-    font-family:helvetica;
-    float:right;
-    background-color:white;
-    border:0px;
-    width:30px;
-    height: 30px;
-    z-index: 3;
+
+.content {
+  margin-left: 280px; /* O mesmo valor da largura da sidebar */
+  height: 100vh;
+  width: calc(100% - 280px); /* Garante que o conteúdo não transborde */
 }
-button.close:hover {
-    background-color: #505050;
-    color: white;
+
+#mapa {
+  height: 100%;
+  width: 100%;
 }
-div.fade {
-    background-color: rgba(0,0,0,0.5);
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100vw;
+
+/* --- 4. Componentes da Sidebar --- */
+.sidebar-button {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 16px;
+  text-align: left;
+  border-radius: var(--border-radius-small);
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
 }
-div.blocoTexto {
-    margin: 20px;
-    font-family:helvetica;
+
+.sidebar-button:hover {
+  background-color: #e9eff0;
+  color: var(--color-text-primary);
 }
-div.blocoDash {
-    margin: 20px;
-    z-index: 2;
-    font-family:helvetica;
+
+.sidebar h2 {
+  font-size: 24px;
+  padding: 0 20px;
+  margin-bottom: 10px;
 }
+
+/* --- 5. Popups e Overlay (Modais) --- */
+.fade {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  z-index: 1000;
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--color-surface);
+  padding: 30px;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-soft);
+  z-index: 1001;
+  min-width: 500px;
+  max-width: 90%;
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.close:hover {
+  color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+/* --- 6. Estilos da Página de Login --- */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--color-background);
+}
+
+.login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: var(--color-surface);
+  padding: 40px 30px;
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--box-shadow-soft);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--border-radius-small);
+  border: 1px solid var(--color-border);
+  font-size: 16px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--border-radius-small);
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.login-button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.login-button.secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.login-button.secondary:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+

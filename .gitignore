@@ -1,2 +1,4 @@
 src/Server/dashboard/.env
-src/Server/compose.yml
+src/Server/api/.env
+src/Server/.env
+src/Server/.vscode
