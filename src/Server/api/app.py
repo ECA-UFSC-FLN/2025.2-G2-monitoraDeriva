@@ -20,7 +20,13 @@ app = Flask(__name__)
 # A SECRET_KEY é agora usada para assinar os tokens JWT e deve ser secreta.
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY")
 
-CORS(app, supports_credentials=True)
+CORS(app, resources={r"/*": {
+    "origins": "*",  # Allow all origins
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],  # Allow all common methods
+    "allow_headers": "*",  # Allow all headers
+    "supports_credentials": True,  # Allow cookies/credentials
+    "max_age": 86400  # Cache preflight for 24 hours
+}})
 
 # --- CONFIGURAÇÃO DE CREDENCIAIS ---
 DB_HOST = os.getenv("POSTGRES_HOST")
@@ -202,16 +208,27 @@ def deny_user_access(user_id):
 
 # --- ENDPOINTS DE DADOS ---
 
-@app.route('/api/location', methods=['POST'])
+@app.route('/api/location', methods=['GET'])
 def receive_location_data():
-    data = request.json
+    data = {
+            "sender_id": request.args.get('sender_id', type=str),
+            "timestamp": request.args.get('timestamp', type=int),
+            "latitude": request.args.get('latitude', type=float),
+            "longitude": request.args.get('longitude', type=float),
+            "gps_module_id": request.args.get('gps_module_id', type=str),
+            "battery_level": request.args.get('battery_level', type=int),
+            "device_status": request.args.get('device_status', type=str)
+        }
     required_fields = ['latitude', 'longitude', 'gps_module_id', 'timestamp']
-    if not all(k in data for k in required_fields):
+    if not all(data[k] is not None for k in required_fields):
         return jsonify({"error": "Faltam campos obrigatórios nos dados de localização"}), 400
-
+    try:
+        timestamp = datetime.fromtimestamp(data["timestamp"])
+    except Exception as e:
+        return jsonify({"error": "Timestamp deve ser um número inteiro"}), 400
     record = {
         "sender_id": data.get("sender_id"),
-        "timestamp": datetime.fromtimestamp(data["timestamp"]),
+        "timestamp": timestamp,
         "latitude": data["latitude"],
         "longitude": data["longitude"],
         "gps_module_id": data["gps_module_id"],

@@ -5,6 +5,9 @@ CREATE TABLE public.deriva_points (
 	latitude float8 NOT NULL,
 	longitude float8 NOT NULL,
 	gps_module_id varchar(255) NOT NULL,
+	battery_level integer,
+	device_status text,
+	created_at timestamp with time zone DEFAULT now(),
 	CONSTRAINT deriva_points_pkey PRIMARY KEY (id)
 );
 
