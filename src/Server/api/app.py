@@ -1,4 +1,3 @@
-# app.py --- API Final com Autenticação por Token (JWT) e Funcionalidades Completas
 import os
 import bcrypt
 import json
@@ -11,24 +10,21 @@ from flask_cors import CORS
 import psycopg
 from psycopg.rows import dict_row
 from dotenv import load_dotenv
-import jwt # Biblioteca para gerir tokens
+import jwt
 
-# --- INICIALIZAÇÃO E CONFIGURAÇÃO ---
 load_dotenv()
 app = Flask(__name__)
 
-# A SECRET_KEY é agora usada para assinar os tokens JWT e deve ser secreta.
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY")
 
 CORS(app, resources={r"/*": {
-    "origins": "*",  # Allow all origins
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],  # Allow all common methods
-    "allow_headers": "*",  # Allow all headers
-    "supports_credentials": True,  # Allow cookies/credentials
-    "max_age": 86400  # Cache preflight for 24 hours
+    "origins": "*",
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+    "allow_headers": "*",
+    "supports_credentials": True,
+    "max_age": 86400
 }})
 
-# --- CONFIGURAÇÃO DE CREDENCIAIS ---
 DB_HOST = os.getenv("POSTGRES_HOST")
 DB_NAME = os.getenv("POSTGRES_DB")
 DB_USER = os.getenv("POSTGRES_USER")
@@ -41,6 +37,7 @@ conn_string = f"dbname='{DB_NAME}' user='{DB_USER}' host='{DB_HOST}' password='{
 print("String de conexão com o PostgreSQL configurada.")
 
 # --- GESTÃO DE AUTENTICAÇÃO (DECORATOR) ---
+
 def token_required(f):
     """Decorator para proteger endpoints que exigem um token JWT."""
     @wraps(f)
@@ -262,8 +259,6 @@ def get_derivadores_data():
                 results = cur.fetchall()
                 print(f"[API] Encontrados {len(results)} registos na base de dados.")
                 
-                # psycopg com dict_row já devolve uma lista de dicionários.
-                # Apenas precisamos de garantir que os datetimes são strings.
                 for row in results:
                     if 'timestamp' in row and isinstance(row['timestamp'], datetime):
                         row['timestamp'] = row['timestamp'].isoformat()
