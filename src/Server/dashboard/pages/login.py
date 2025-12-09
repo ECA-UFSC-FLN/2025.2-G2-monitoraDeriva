@@ -5,7 +5,7 @@ import requests
 import os
 
 dash.register_page(__name__, path='/login')
-API_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:5000")
+API_URL = os.environ["API_BASE_URL"]
 
 # --- Layout da Página ---
 layout = html.Div(className='login-container', children=[
@@ -82,5 +82,5 @@ def handle_authentication(login_clicks, register_clicks, email, password):
             
     except requests.exceptions.RequestException as e:
         print(f"Erro de conexão com a API: {e}")
-        return no_update, "Não foi possível conectar ao servidor.", no_update
+        return no_update, f"Não foi possível conectar ao servidor url: {API_URL}{endpoint}.", no_update
 

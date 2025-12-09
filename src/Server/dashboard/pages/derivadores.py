@@ -11,7 +11,7 @@ import urllib.parse
 import io
 from base64 import b64encode
 
-API_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:5000")
+API_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:5000/api")
 dash.register_page(__name__, path='/')
 
 def create_initial_figure():
@@ -24,8 +24,21 @@ def create_initial_figure():
     return fig
 
 layout = html.Div(className='app-container', children=[
-    html.Div(className="sidebar", children=[
-        html.H2('Derivadores', style={'textAlign': 'center', 'color': '#333'}),
+
+    # 1. Memória do estado da sidebar
+    dcc.Store(id='side_click', data=True),
+
+    # 2. Botão Toggle
+    html.Button('☰', id='btn_sidebar', n_clicks=0, style={
+        'position': 'fixed', 'top': '10px', 'left': '10px', 'zIndex': 1100,
+        'fontSize': '20px', 'backgroundColor': 'white', 'border': 'none', 
+        'cursor': 'pointer', 'padding': '5px 10px', 'borderRadius': '5px', 
+        'boxShadow': '0px 2px 5px rgba(0,0,0,0.2)'
+    }),
+
+    # 3. Sidebar NOVA (Com ID)
+    html.Div(id='sidebar', className="sidebar", children=[
+        html.H2('Derivadores', style={'textAlign': 'center', 'color': '#333', 'marginTop': '40px'}), 
         html.Hr(),
         html.Button('Logout', id='logout-button', className='sidebar-button'),
         html.Button('Atualizar Dados', id='refresh-button', className='sidebar-button'),
@@ -34,11 +47,16 @@ layout = html.Div(className='app-container', children=[
         html.Button('Dashboard', id='dashboard-button', className='sidebar-button', n_clicks=0),
         html.Button('Sobre', id='about-button', className='sidebar-button', n_clicks=0),
     ]),
-    html.Div(className="content", children=[
+
+    # 4. Content NOVO (Com ID e contendo o mapa)
+    html.Div(id='page-content', className="content", children=[
         dcc.Graph(id='mapa', figure=create_initial_figure(), style={'height': '100vh'})
     ]),
+
+    # 5. Popups e Utilitários (Isso fica igual)
     html.Div(id='fade-about', className='fade'),
     html.Div(id='fade-dashboard', className='fade'),
+    
     html.Div(className='popup', id='about-popup', children=[
         html.Button('X', id='close-about', n_clicks=0, className='close'),
         html.H2('Sobre o Projeto'),
@@ -46,6 +64,7 @@ layout = html.Div(className='app-container', children=[
         html.P('Criado por: Aruã Viggiano Souza, Gabriel Hessmann Ramos, Leonardo Coli de Aguiar e Matheus Araujo Langer'),
         html.P(['Código fonte: ', html.A('GitHub', href='https://github.com/ECA-UFSC-FLN/2025.2-G2-monitoraDeriva', target='_blank')])
     ]),
+    
     html.Div(className='popup', id='dashboard-popup', children=[
         html.Button('X', id='close-dashboard', n_clicks=0, className='close'),
         html.H2('Dashboard de Status'),
@@ -146,10 +165,23 @@ def update_data_and_map(pathname, n_clicks, session_data):
         )
         fig.add_trace(go.Scattermapbox(
             lon=drifter_df['longitude'], lat=drifter_df['latitude'], mode='markers+lines',
-            marker=dict(size=10, color=colors[drifter_id]),
+            marker=dict(size=8, color=colors[drifter_id], opacity=0.7),
             line=dict(width=2, color=colors[drifter_id]),
             name=str(drifter_id), hoverinfo='text', text=drifter_df['hover_text']
         ))
+
+        if not drifter_df.empty:
+            last_pos = drifter_df.iloc[-1]
+            
+            fig.add_trace(go.Scattermapbox(
+                lon=[last_pos['longitude']], lat=[last_pos['latitude']], mode='markers',
+                marker=dict(size=16, color=colors[drifter_id], opacity=1,),
+
+                text=[f"📍 <b>ATUAL</b><br>{last_pos['hover_text']}"],
+                hoverinfo='text',
+                name=f"{drifter_id} (Atual)", 
+                showlegend=False 
+            ))
 
     fig.update_layout(
         mapbox_style="open-street-map",
@@ -236,3 +268,38 @@ def generate_data_download_link(data_json):
     csv_string = df.to_csv(index=False, encoding='utf-8')
     return "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
 
+@callback(
+    [Output('sidebar', 'style'),
+     Output('page-content', 'style'),
+     Output('side_click', 'data')],
+    Input('btn_sidebar', 'n_clicks'),
+    State('side_click', 'data')
+)
+def toggle_sidebar(n, is_open):
+    if n:
+        is_open = not is_open
+    
+    SIDEBAR_WIDTH = "250px" 
+    
+    if is_open:
+        sidebar_style = {
+            'marginLeft': '0', 
+            'transition': 'margin-left 0.3s ease-in-out',
+            'position': 'fixed', 'top': 0, 'left': 0, 'bottom': 0, 'width': SIDEBAR_WIDTH, 'padding': '2rem 1rem', 'backgroundColor': '#f8f9fa'
+        }
+        content_style = {
+            'marginLeft': SIDEBAR_WIDTH, 
+            'transition': 'margin-left 0.3s ease-in-out'
+        }
+    else:
+        sidebar_style = {
+            'marginLeft': f'-{SIDEBAR_WIDTH}', 
+            'transition': 'margin-left 0.3s ease-in-out',
+            'position': 'fixed', 'top': 0, 'left': 0, 'bottom': 0, 'width': SIDEBAR_WIDTH, 'padding': '2rem 1rem', 'backgroundColor': '#f8f9fa'
+        }
+        content_style = {
+            'marginLeft': '0', 
+            'transition': 'margin-left 0.3s ease-in-out'
+        }
+        
+    return sidebar_style, content_style, is_open

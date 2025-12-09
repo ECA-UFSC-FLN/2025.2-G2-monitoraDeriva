@@ -1,19 +1,18 @@
 :root {
-  --color-primary: #1877f2;       /* Azul principal para botões e links */
-  --color-primary-hover: #166fe5;  /* Azul mais escuro para hover */
-  --color-text-primary: #1c1e21;    /* Preto suave para textos principais */
-  --color-text-secondary: #606770; /* Cinza para textos secundários */
-  --color-background: #f0f2f5;     /* Cinza claro para o fundo do conteúdo */
-  --color-surface: #ffffff;        /* Branco para superfícies como cards e modais */
-  --color-sidebar-bg: #ffffff;      /* Fundo da sidebar (branco para um look moderno) */
-  --color-border: #dddfe2;         /* Cor para bordas sutis */
+  --color-primary: #1877f2;
+  --color-primary-hover: #166fe5;
+  --color-text-primary: #1c1e21;
+  --color-text-secondary: #606770;
+  --color-background: #f0f2f5;
+  --color-surface: #ffffff;
+  --color-sidebar-bg: #ffffff;
+  --color-border: #dddfe2;
   --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --border-radius-small: 6px;
   --border-radius-large: 12px;
   --box-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* --- 2. Reset Básico e Estilos Globais --- */
 * {
   margin: 0;
   padding: 0;
@@ -22,32 +21,33 @@
 
 body {
   height: 100vh;
-  overflow: hidden; /* Evita barras de rolagem no corpo da página */
+  overflow: hidden;
   font-family: var(--font-family-base);
   color: var(--color-text-primary);
   background-color: var(--color-background);
 }
 
-/* --- 3. Layout Principal (Sidebar + Conteúdo) --- */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
-  width: 280px; /* Largura da sidebar */
+  width: 280px;
   background-color: var(--color-sidebar-bg);
   padding: 20px;
   box-shadow: 2px 0 8px rgba(0,0,0,0.08);
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  transition: transform 0.3s ease;
 }
 
 .content {
-  margin-left: 280px; /* O mesmo valor da largura da sidebar */
+  margin-left: 280px;
   height: 100vh;
-  width: calc(100% - 280px); /* Garante que o conteúdo não transborde */
+  width: calc(100% - 280px);
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 #mapa {
@@ -55,7 +55,6 @@ body {
   width: 100%;
 }
 
-/* --- 4. Componentes da Sidebar --- */
 .sidebar-button {
   width: 100%;
   padding: 12px 20px;
@@ -81,7 +80,6 @@ body {
   margin-bottom: 10px;
 }
 
-/* --- 5. Popups e Overlay (Modais) --- */
 .fade {
   display: none;
   position: fixed;
@@ -90,7 +88,7 @@ body {
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,0.6);
-  z-index: 1000;
+  z-index: 1500;
 }
 
 .popup {
@@ -103,7 +101,7 @@ body {
   padding: 30px;
   border-radius: var(--border-radius-large);
   box-shadow: var(--box-shadow-soft);
-  z-index: 1001;
+  z-index: 1600;
   min-width: 500px;
   max-width: 90%;
 }
@@ -125,7 +123,6 @@ body {
   transform: scale(1.1);
 }
 
-/* --- 6. Estilos da Página de Login --- */
 .login-container {
   display: flex;
   justify-content: center;
@@ -183,3 +180,17 @@ body {
   color: white;
 }
 
+@media (max-width: 768px) {
+    
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .popup {
+        min-width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+}

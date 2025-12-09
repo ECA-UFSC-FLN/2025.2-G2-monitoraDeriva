@@ -139,6 +139,14 @@ def register_user():
 
 @app.route('/api/auth/login', methods=['POST'])
 def login_user():
+
+    #apagar essa parte em produção
+    token = jwt.encode({
+                        'user_id': '0',
+                        'exp': datetime.now(timezone.utc) + timedelta(hours=24)
+                    }, app.config['SECRET_KEY'], algorithm="HS256")
+    return jsonify({"message": "Login bem-sucedido.", "token": token}), 200
+
     data = request.json
     email, password = data.get('email'), data.get('password')
     try:
