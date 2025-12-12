@@ -16,11 +16,3 @@ Este projeto visa criar um sistema de monitoramento de trajetória de carcaças 
 - **Ano/Semestre:** 2025.2  
 - **Equipe:** Equipe 2  
 
----
-
-## 🚀 Como Executar o Projeto
-
-### Pré-requisitos
-
-### Passos
-
